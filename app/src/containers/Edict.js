@@ -26,17 +26,17 @@ class Edict extends Component {
       />),
   })
 
+  constructor(props) {
+    super(props);
+
+    this.backButtonListener = null;
+  }
+
   state = {
     type: 'ADD',
     key: '',
     title: '',
     note: '',
-  }
-
-  constructor(props) {
-    super(props);
-
-    this.backButtonListener = null;
   }
 
   componentWillMount() {
@@ -64,8 +64,6 @@ class Edict extends Component {
   }
 
   componentWillUnmount() {
-    console.log('componentWillUnmount');
-    //BackHandler.removeEventListener('hardwareBackPress');
     this.backButtonListener.remove();
   }
 
@@ -76,7 +74,6 @@ class Edict extends Component {
   goBack() {
     this.saveNote();
     this.props.navigation.goBack(null);
-    console.log(this);
   }
 
   saveNote() {

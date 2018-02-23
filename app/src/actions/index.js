@@ -3,8 +3,6 @@ import { AsyncStorage } from 'react-native';
 import { ADD_NOTE, DELETE_NOTE, UPDATE_NOTE, NOTES_AVAILABLE } from './types';
 
 export function addNote(note) {
-  //return { type: ADD_NOTE, note };
-  console.log('asewafvevewvr');
   return dispatch => {
     AsyncStorage.getItem('data', (err, notes) => {
       let newNotes = [];
@@ -12,7 +10,6 @@ export function addNote(note) {
         newNotes = JSON.parse(notes);
       }
       newNotes.unshift(note);
-      console.log('new on', newNotes);
       AsyncStorage.setItem('data', JSON.stringify(newNotes), () => {
         dispatch({ type: ADD_NOTE, note });
       });
@@ -21,7 +18,6 @@ export function addNote(note) {
 }
 
 export function getNotes() {
-  //return { type: NOTES_AVAILABLE };
   return dispatch => {
     AsyncStorage.getItem('data', (err, notes) => {
       if (notes !== null) {
@@ -32,7 +28,6 @@ export function getNotes() {
 }
 
 export function updateNote(note) {
-  //return { type: UPDATE_NOTE, note };
   return dispatch => {
     AsyncStorage.getItem('data', (err, notes) => {
       if (notes !== null) {
@@ -53,7 +48,6 @@ export function updateNote(note) {
 }
 
 export function deleteNote(note) {
-  //return { type: DELETE_NOTE, note };
   return dispatch => {
     AsyncStorage.getItem('data', (err, notes) => {
       if (notes !== null) {
@@ -74,5 +68,5 @@ export function deleteNote(note) {
 
 function getIndex(data, key) {
   const clone = JSON.parse(JSON.stringify(data));
-  return clone.findIndex((obj) => parseInt(obj.key) === parseInt(key));
+  return clone.findIndex((obj) => parseInt(obj.key, 10) === parseInt(key, 10));
 }

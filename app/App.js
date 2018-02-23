@@ -7,7 +7,6 @@ import thunk from 'redux-thunk';
 
 import AppReducer from './src/reducers';
 import AppWithNavigationState from './src/navigators/AppNavigator';
-import { middleware } from './src/utils/redux';
 
 const store = createStore(
   AppReducer,

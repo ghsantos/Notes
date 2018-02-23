@@ -22,7 +22,6 @@ function noteReducer(state = INITIAL_STATE, action) {
 
   switch (action.type) {
     case ADD_NOTE:
-      console.log('aaaaaaaaaaaaaaa');
       notes.unshift(action.note);
       nextState = { notes };
       break;
@@ -91,7 +90,7 @@ function nav(state, action) {
 
 function getIndex(data, key) {
   const clone = JSON.parse(JSON.stringify(data));
-  return clone.findIndex((obj) => parseInt(obj.key) === parseInt(key));
+  return clone.findIndex((obj) => parseInt(obj.key, 10) === parseInt(key, 10));
 }
 
 const AppReducer = combineReducers({
