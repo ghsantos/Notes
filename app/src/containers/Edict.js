@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import {
+  Alert,
   View,
   TextInput,
   StyleSheet,
@@ -10,7 +11,7 @@ import {
 import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { addNote, updateNote } from '../actions';
+import { addNote, updateNote, deleteNote } from '../actions';
 
 class Edict extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -22,8 +23,17 @@ class Edict extends Component {
       <Icon
         name='arrow-left'
         onPress={() => navigation.state.params.onPressBack()}
-        size={30} color="white"
+        size={30}
+        color='white'
       />),
+    headerRight: (
+      <Icon
+        name='delete'
+        onPress={() => navigation.state.params.onPressDelete()}
+        size={30}
+        color='#FFF'
+      />
+    ),
   })
 
   constructor(props) {
@@ -40,7 +50,10 @@ class Edict extends Component {
   }
 
   componentWillMount() {
-    this.props.navigation.setParams({ onPressBack: () => this.goBack() });
+    this.props.navigation.setParams({
+      onPressBack: () => this.goBack(),
+      onPressDelete: () => this.delete(),
+    });
 
     if (this.props.navigation.state.params) {
       const { key, title, note } = this.props.navigation.state.params.note;
@@ -73,6 +86,25 @@ class Edict extends Component {
 
   goBack() {
     this.saveNote();
+    this.props.navigation.goBack(null);
+  }
+
+  delete() {
+    if (this.state.title !== '' || this.state.note !== '') {
+      Alert.alert('', 'Apagar nota definitivamente?',
+        [
+          { text: 'CANCELAR', onPress: () => {} },
+          { text: 'APAGAR', onPress: () => this.onDeleteNote() }
+        ]
+      );
+    }
+  }
+
+  onDeleteNote() {
+    if (this.state.type === 'UPDATE') {
+      const note = { key: this.state.key, title: this.state.title, note: this.state.note };
+      this.props.deleteNote(note);
+    }
     this.props.navigation.goBack(null);
   }
 
@@ -120,7 +152,7 @@ function mapStateToProps(state, props) {
     return {};
 }
 
-export default connect(mapStateToProps, { addNote, updateNote })(Edict);
+export default connect(mapStateToProps, { addNote, updateNote, deleteNote })(Edict);
 
 const styles = StyleSheet.create({
   container: {
