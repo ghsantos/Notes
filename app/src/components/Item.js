@@ -5,24 +5,33 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import Swipeable from 'react-native-swipeable';
 
 export default class Item extends Component {
   render() {
     const rightButton = ([
-      <TouchableOpacity style={styles.deleteButton} onPress={this.props.onPressDelete}>
-        <Text style={{ color: '#fff' }}>
-          Apagar
-        </Text>
-      </TouchableOpacity>
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <TouchableOpacity style={styles.deleteButton} onPress={this.props.onPressDelete}>
+          <Text style={{ color: '#fff' }}>
+            Apagar
+          </Text>
+        </TouchableOpacity>
+      </View>
     ]);
 
     return (
       <Swipeable rightButtons={rightButton} style={styles.container}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={this.props.onPress}>
-          <Text numberOfLines={1} style={styles.title}>{this.props.title}</Text>
-          <Text numberOfLines={1} style={styles.nota}>{this.props.note}</Text>
+        <TouchableOpacity
+          style={{ flex: 1, justifyContent: 'center' }} onPress={this.props.onPress}
+        >
+          {!!this.props.title &&
+            <Text numberOfLines={1} style={styles.title}>{this.props.title}</Text>}
+
+          <Text numberOfLines={this.props.title ? 1 : 2} style={styles.nota}>
+            {this.props.note}
+          </Text>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -31,18 +40,15 @@ export default class Item extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    height: 58,
     borderRadius: 4,
-    borderBottomWidth: 0,
-    borderColor: '#ddd',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     marginBottom: 2,
     marginHorizontal: 3,
     elevation: 1,
     backgroundColor: 'white',
   },
   title: {
-    paddingLeft: 5,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
@@ -52,9 +58,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#F44336',
-    //flex: 1,
     width: 68,
-    height: '100%',
+    height: '65%',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
