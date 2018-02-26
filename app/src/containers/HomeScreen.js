@@ -60,6 +60,7 @@ class HomeScreen extends Component {
               <Item
                 title={note.title}
                 note={note.note}
+                color={note.color}
                 key={note.key}
                 onPress={() =>
                   this.props.navigation.dispatch({ type: NAV_EDIT_NOTE, note })

@@ -7,11 +7,13 @@ import {
   TextInput,
   StyleSheet,
   BackHandler,
+  TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { addNote, updateNote, deleteNote } from '../actions';
+import colors from '../styles/colors';
 
 class Edict extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -47,6 +49,7 @@ class Edict extends Component {
     key: '',
     title: '',
     note: '',
+    color: '#FFFFFF',
   }
 
   componentWillMount() {
@@ -56,8 +59,8 @@ class Edict extends Component {
     });
 
     if (this.props.navigation.state.params) {
-      const { key, title, note } = this.props.navigation.state.params.note;
-      this.setState({ type: 'UPDATE', key, title, note });
+      const { key, title, note, color } = this.props.navigation.state.params.note;
+      this.setState({ type: 'UPDATE', key, title, note, color });
     } else {
       const key = this.generateKey();
       this.setState({ key });
@@ -110,7 +113,12 @@ class Edict extends Component {
 
   saveNote() {
     if (this.state.title !== '' || this.state.note !== '') {
-      const note = { key: this.state.key, title: this.state.title, note: this.state.note };
+      const note = {
+        key: this.state.key,
+        title: this.state.title,
+        note: this.state.note,
+        color: this.state.color
+      };
 
       if (this.state.type === 'ADD') {
         this.props.addNote(note);
@@ -122,7 +130,7 @@ class Edict extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: this.state.color }]}>
         <TextInput
           value={this.state.title}
           onChangeText={text => this.setState({ title: text })}
@@ -133,7 +141,7 @@ class Edict extends Component {
           onSubmitEditing={() => this.refs.nota.focus()}
         />
 
-        <View style={{ height: '90%' }}>
+        <View style={{ flex: 1 }}>
           <TextInput
             ref='nota'
             value={this.state.note}
@@ -142,6 +150,14 @@ class Edict extends Component {
             underlineColorAndroid='transparent'
             multiline
           />
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          {colors.map(color => <TouchableOpacity
+            key={color}
+            style={[styles.colorBox, { backgroundColor: color }]}
+            onPress={() => this.setState({ color })}
+          />)}
         </View>
       </View>
     );
@@ -158,6 +174,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 8,
-    marginBottom: 10,
   },
+  colorBox: {
+    height: 30,
+    width: 30,
+    borderRadius: 2,
+    elevation: 2,
+  }
 });

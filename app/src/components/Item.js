@@ -22,7 +22,10 @@ export default class Item extends Component {
     ]);
 
     return (
-      <Swipeable rightButtons={rightButton} style={styles.container}>
+      <Swipeable
+        rightButtons={rightButton}
+        style={[styles.container, { backgroundColor: this.props.color }]}
+      >
         <TouchableOpacity
           style={{ flex: 1, justifyContent: 'center' }} onPress={this.props.onPress}
         >

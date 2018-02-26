@@ -38,6 +38,7 @@ function noteReducer(state = INITIAL_STATE, action) {
       if (index !== -1) {
         notes[index].title = note.title;
         notes[index].note = note.note;
+        notes[index].color = note.color;
       }
       nextState = { notes };
       break;
