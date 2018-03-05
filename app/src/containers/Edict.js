@@ -22,19 +22,26 @@ class Edict extends Component {
     gesturesEnabled: false,
     drawerLockMode: 'locked-closed',
     headerLeft: (
-      <Icon
-        name='arrow-left'
-        onPress={() => navigation.state.params.onPressBack()}
-        size={30}
-        color='white'
-      />),
+      <TouchableOpacity onPress={() => navigation.state.params.onPressBack()}>
+        <Icon
+          name='arrow-left'
+          size={30}
+          color='white'
+          style={styles.icon}
+        />
+      </TouchableOpacity>
+    ),
     headerRight: (
-      <Icon
-        name='delete'
-        onPress={() => navigation.state.params.onPressDelete()}
-        size={30}
-        color='#FFF'
-      />
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity onPress={() => navigation.state.params.onPressDelete()}>
+          <Icon
+            name='delete'
+            size={30}
+            color='white'
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      </View>
     ),
   })
 
@@ -180,5 +187,8 @@ const styles = StyleSheet.create({
     width: 30,
     borderRadius: 2,
     elevation: 2,
-  }
+  },
+  icon: {
+    marginHorizontal: 10,
+  },
 });

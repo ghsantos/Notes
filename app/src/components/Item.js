@@ -46,9 +46,9 @@ const styles = StyleSheet.create({
     height: 58,
     borderRadius: 4,
     paddingHorizontal: 10,
-    marginBottom: 2,
-    marginHorizontal: 3,
-    elevation: 1,
+    marginBottom: 5,
+    marginHorizontal: 5,
+    elevation: 2,
     backgroundColor: 'white',
   },
   title: {
