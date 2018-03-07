@@ -5,6 +5,7 @@ import {
   Alert,
   View,
   TextInput,
+  StatusBar,
   StyleSheet,
   BackHandler,
   TouchableOpacity,
@@ -14,36 +15,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { addNote, updateNote, deleteNote } from '../actions';
 import colors from '../styles/colors';
+import Header from '../components/Header';
 
 class Edict extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: { backgroundColor: '#7325A1' },
-    headerTintColor: 'white',
-    gesturesEnabled: false,
-    drawerLockMode: 'locked-closed',
-    headerLeft: (
-      <TouchableOpacity onPress={() => navigation.state.params.onPressBack()}>
-        <Icon
-          name='arrow-left'
-          size={30}
-          color='white'
-          style={styles.icon}
-        />
-      </TouchableOpacity>
-    ),
-    headerRight: (
-      <View style={{ flexDirection: 'row' }}>
-        <TouchableOpacity onPress={() => navigation.state.params.onPressDelete()}>
-          <Icon
-            name='delete'
-            size={30}
-            color='white'
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      </View>
-    ),
-  })
+  static navigationOptions = { header: null, drawerLockMode: 'locked-closed' };
 
   constructor(props) {
     super(props);
@@ -60,11 +35,6 @@ class Edict extends Component {
   }
 
   componentWillMount() {
-    this.props.navigation.setParams({
-      onPressBack: () => this.goBack(),
-      onPressDelete: () => this.delete(),
-    });
-
     if (this.props.navigation.state.params) {
       const { key, title, note, color } = this.props.navigation.state.params.note;
       this.setState({ type: 'UPDATE', key, title, note, color });
@@ -138,33 +108,63 @@ class Edict extends Component {
   render() {
     return (
       <View style={[styles.container, { backgroundColor: this.state.color }]}>
-        <TextInput
-          value={this.state.title}
-          onChangeText={text => this.setState({ title: text })}
-          autoFocus
-          placeholder='Título'
-          underlineColorAndroid='transparent'
-          style={{ fontSize: 18, fontWeight: 'bold' }}
-          onSubmitEditing={() => this.refs.nota.focus()}
+        <StatusBar backgroundColor={this.state.color} barStyle='dark-content' />
+
+        <Header
+          style={{ backgroundColor: this.state.color }}
+          headerLeft={
+            <TouchableOpacity onPress={() => this.goBack()}>
+              <Icon
+                name='arrow-left'
+                size={30}
+                color='#0000009A'
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          }
+          headerRight={
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity onPress={() => this.delete()}>
+                <Icon
+                  name='delete'
+                  size={30}
+                  color='#0000009A'
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+            </View>
+          }
         />
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, padding: 8 }}>
           <TextInput
-            ref='nota'
-            value={this.state.note}
-            onChangeText={text => this.setState({ note: text })}
-            placeholder='Nota'
+            value={this.state.title}
+            onChangeText={text => this.setState({ title: text })}
+            autoFocus
+            placeholder='Título'
             underlineColorAndroid='transparent'
-            multiline
+            style={{ fontSize: 18, fontWeight: 'bold' }}
+            onSubmitEditing={() => this.refs.nota.focus()}
           />
-        </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          {colors.map(color => <TouchableOpacity
-            key={color}
-            style={[styles.colorBox, { backgroundColor: color }]}
-            onPress={() => this.setState({ color })}
-          />)}
+          <View style={{ flex: 1 }}>
+            <TextInput
+              ref='nota'
+              value={this.state.note}
+              onChangeText={text => this.setState({ note: text })}
+              placeholder='Nota'
+              underlineColorAndroid='transparent'
+              multiline
+            />
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {colors.map(color => <TouchableOpacity
+              key={color}
+              style={[styles.colorBox, { backgroundColor: color }]}
+              onPress={() => this.setState({ color })}
+            />)}
+          </View>
         </View>
       </View>
     );
@@ -180,7 +180,6 @@ export default connect(mapStateToProps, { addNote, updateNote, deleteNote })(Edi
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 8,
   },
   colorBox: {
     height: 30,
@@ -189,6 +188,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   icon: {
-    marginHorizontal: 10,
+    marginHorizontal: 7,
   },
 });
