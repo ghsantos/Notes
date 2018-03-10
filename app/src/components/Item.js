@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import Swipeable from 'react-native-swipeable';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default class Item extends Component {
   render() {
@@ -27,14 +28,31 @@ export default class Item extends Component {
         style={[styles.container, { backgroundColor: this.props.color }]}
       >
         <TouchableOpacity
-          style={{ flex: 1, justifyContent: 'center' }} onPress={this.props.onPress}
+          style={{ flex: 1, flexDirection: 'row' }}
+          onPress={this.props.onPress}
         >
-          {!!this.props.title &&
-            <Text numberOfLines={1} style={styles.title}>{this.props.title}</Text>}
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            {!!this.props.title &&
+              <Text numberOfLines={1} style={styles.title}>{this.props.title}</Text>
+            }
 
-          <Text numberOfLines={this.props.title ? 1 : 2} style={styles.nota}>
-            {this.props.note}
-          </Text>
+              {!this.props.locked &&
+                <Text numberOfLines={this.props.title ? 1 : 2} style={styles.nota}>
+                  {this.props.note}
+                </Text>
+              }
+          </View>
+
+          {!!this.props.locked &&
+            <View style={{ justifyContent: 'center', }}>
+              <Icon
+                name='lock'
+                size={28}
+                color='#0000009A'
+                style={styles.icon}
+              />
+            </View>
+          }
         </TouchableOpacity>
       </Swipeable>
     );

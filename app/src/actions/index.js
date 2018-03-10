@@ -38,6 +38,7 @@ export function updateNote(note) {
           newNotes[index].title = note.title;
           newNotes[index].note = note.note;
           newNotes[index].color = note.color;
+          newNotes[index].locked = note.locked;
 
           AsyncStorage.setItem('data', JSON.stringify(newNotes), () => {
             dispatch({ type: UPDATE_NOTE, note });
