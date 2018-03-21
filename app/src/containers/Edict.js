@@ -50,17 +50,14 @@ class Edict extends Component {
   componentWillMount() {
     if (this.props.navigation.state.params) {
       const { key, title, color } = this.props.navigation.state.params.note;
-      this.setState({ type: 'UPDATE', key, title, color });
-
       const { locked } = this.props.navigation.state.params.note || false;
-      this.setState({ locked });
 
-      let note;
+      this.setState({ type: 'UPDATE', key, title, color, locked });
 
       if (locked) {
         this.getCryptoPass(this.setState({ confirmPassVisible: true, noteIsCrypto: true }));
       } else {
-          note = this.props.navigation.state.params.note.note;
+          const note = this.props.navigation.state.params.note.note;
           this.setState({ note });
       }
     } else {
@@ -178,9 +175,6 @@ class Edict extends Component {
   confirmPass() {
     const { pass, cryptoPass } = this.state;
 
-    console.log(pass);
-    console.log(cryptoPass);
-
     if (CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex) === cryptoPass) {
       if (this.state.noteIsCrypto) {
         const cryptoNote = this.props.navigation.state.params.note.note;
@@ -203,105 +197,121 @@ class Edict extends Component {
     }
   }
 
-  render() {
+  header() {
     return (
-      <View style={[styles.container, { backgroundColor: this.state.color }]}>
-        <StatusBar backgroundColor={this.state.color} barStyle='dark-content' />
-
-        <Header
-          style={{ backgroundColor: this.state.color }}
-          headerLeft={
-            <TouchableOpacity onPress={() => this.goBack()}>
+      <Header
+        style={{ backgroundColor: this.state.color }}
+        headerLeft={
+          <TouchableOpacity onPress={() => this.goBack()}>
+            <Icon
+              name='arrow-left'
+              size={30}
+              color='#0000009A'
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        }
+        headerRight={
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.onPressLock()}>
               <Icon
-                name='arrow-left'
+                name={this.state.locked ? 'lock' : 'lock-open'}
+                size={28}
+                color='#0000009A'
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => this.delete()}>
+              <Icon
+                name='delete'
                 size={30}
                 color='#0000009A'
                 style={styles.icon}
               />
             </TouchableOpacity>
-          }
-          headerRight={
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TouchableOpacity onPress={() => this.onPressLock()}>
-                <Icon
-                  name={this.state.locked ? 'lock' : 'lock-open'}
-                  size={28}
-                  color='#0000009A'
-                  style={styles.icon}
-                />
-              </TouchableOpacity>
+          </View>
+        }
+      />
+    );
+  }
 
-              <TouchableOpacity onPress={() => this.delete()}>
-                <Icon
-                  name='delete'
-                  size={30}
-                  color='#0000009A'
-                  style={styles.icon}
-                />
-              </TouchableOpacity>
-            </View>
-          }
+  alertConfirmPass() {
+    return (
+      <CustomAlert
+        visible={this.state.confirmPassVisible}
+        title='Confirme sua senha'
+        buttons={[
+          {
+            text: 'CANCELAR',
+            onPress: () => this.cancelConfirmationPass(),
+            key: 1,
+          },
+          {
+            text: 'OK',
+            onPress: () => this.confirmPass(),
+            key: 2,
+          },
+        ]}
+      >
+        <TextInput
+          autoFocus
+          secureTextEntry
+          autoCapitalize='none'
+          value={this.state.pass}
+          onChangeText={text => this.setState({ pass: text })}
         />
+      </CustomAlert>
+    );
+  }
 
-        <CustomAlert
-          visible={this.state.confirmPassVisible}
-          title='Confirme sua senha'
-          buttons={[
-            {
-              text: 'CANCELAR',
-              onPress: () => this.cancelConfirmationPass(),
-              key: 1,
-            },
-            {
-              text: 'OK',
-              onPress: () => this.confirmPass(),
-              key: 2,
-            },
-          ]}
-        >
-          <TextInput
-            autoFocus
-            secureTextEntry
-            autoCapitalize='none'
-            value={this.state.pass}
-            onChangeText={text => this.setState({ pass: text })}
-          />
-        </CustomAlert>
+  alertSetPass() {
+    return (
+      <CustomAlert
+        visible={this.state.setPassVisible}
+        title='Insira uma senha para bloquear a mensagem'
+        buttons={[
+          {
+            text: 'CANCELAR',
+            onPress: () => this.setState({ setPassVisible: false }),
+            key: 1,
+          },
+          {
+            text: 'OK',
+            onPress: () => this.checkPass(),
+            key: 2,
+          },
+        ]}
+      >
+        <Text>Senha</Text>
+        <TextInput
+          autoFocus
+          secureTextEntry
+          autoCapitalize='none'
+          value={this.state.pass}
+          onChangeText={text => this.setState({ pass: text })}
+          onSubmitEditing={() => this.refs.check.focus()}
+        />
+        <Text>Confirme sua senha</Text>
+        <TextInput
+          ref='check'
+          secureTextEntry
+          autoCapitalize='none'
+          value={this.state.passCheck}
+          onChangeText={text => this.setState({ passCheck: text })}
+        />
+      </CustomAlert>
+    );
+  }
 
-        <CustomAlert
-          visible={this.state.setPassVisible}
-          title='Insira uma senha para bloquear a mensagem'
-          buttons={[
-            {
-              text: 'CANCELAR',
-              onPress: () => this.setState({ setPassVisible: false }),
-              key: 1,
-            },
-            {
-              text: 'OK',
-              onPress: () => this.checkPass(),
-              key: 2,
-            },
-          ]}
-        >
-          <Text>Senha</Text>
-          <TextInput
-            autoFocus
-            secureTextEntry
-            autoCapitalize='none'
-            value={this.state.pass}
-            onChangeText={text => this.setState({ pass: text })}
-            onSubmitEditing={() => this.refs.check.focus()}
-          />
-          <Text>Confirme sua senha</Text>
-          <TextInput
-            ref='check'
-            secureTextEntry
-            autoCapitalize='none'
-            value={this.state.passCheck}
-            onChangeText={text => this.setState({ passCheck: text })}
-          />
-        </CustomAlert>
+  render() {
+    return (
+      <View style={[styles.container, { backgroundColor: this.state.color }]}>
+        <StatusBar backgroundColor={this.state.color} barStyle='dark-content' />
+
+        {this.header()}
+        {this.alertConfirmPass()}
+        {this.alertSetPass()}
 
         <View style={{ flex: 1, padding: 8 }}>
           <TextInput
@@ -322,6 +332,7 @@ class Edict extends Component {
               placeholder='Nota'
               underlineColorAndroid='transparent'
               multiline
+              style={{ flex: 1, textAlignVertical: 'top' }}
             />
           </View>
 

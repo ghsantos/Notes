@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import {
+  Alert,
   View,
   ScrollView,
   StyleSheet,
@@ -38,6 +39,15 @@ class HomeScreen extends Component {
     this.props.getNotes();
   }
 
+  onPressDelete(note) {
+    Alert.alert('', 'Apagar nota definitivamente?',
+      [
+        { text: 'CANCELAR', onPress: () => {} },
+        { text: 'APAGAR', onPress: () => this.props.deleteNote(note) }
+      ]
+    );
+  }
+
   emptyState() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -66,7 +76,7 @@ class HomeScreen extends Component {
                 onPress={() =>
                   this.props.navigation.dispatch({ type: NAV_EDIT_NOTE, note })
                 }
-                onPressDelete={() => this.props.deleteNote(note)}
+                onPressDelete={() => this.onPressDelete(note)}
               />
             )}
           </ScrollView>

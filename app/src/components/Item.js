@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     height: '65%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 10,
+    marginLeft: 12,
     borderRadius: 2,
   },
 });
