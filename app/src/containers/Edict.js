@@ -10,7 +10,6 @@ import {
   StyleSheet,
   BackHandler,
   TouchableOpacity,
-  Text,
 } from 'react-native';
 import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,7 +19,9 @@ import CryptoJS from 'crypto-js';
 import { addNote, updateNote, deleteNote } from '../actions';
 import colors from '../styles/colors';
 import Header from '../components/Header';
-import CustomAlert from '../components/CustomAlert';
+
+import AlertConfirmPass from '../components/AlertConfirmPass';
+import AlertSetPass from '../components/AlertSetPass';
 
 class Edict extends Component {
   static navigationOptions = { header: null, drawerLockMode: 'locked-closed' };
@@ -42,8 +43,6 @@ class Edict extends Component {
     setPassVisible: false,      // CustomAlert set pass
     cryptoPass: '',
     passChecked: '',
-    pass: '',
-    passCheck: '',
     noteIsCrypto: false,
   }
 
@@ -160,10 +159,7 @@ class Edict extends Component {
     });
   }
 
-  checkPass() {
-    const { pass, passCheck } = this.state;
-    this.setState({ pass: '', passCheck: '' });
-
+  checkPass(pass, passCheck) {
     if (pass !== '' && pass === passCheck) {
       const cryptoPass = CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex);
 
@@ -172,8 +168,8 @@ class Edict extends Component {
     }
   }
 
-  confirmPass() {
-    const { pass, cryptoPass } = this.state;
+  confirmPass(pass) {
+    const { cryptoPass } = this.state;
 
     if (CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex) === cryptoPass) {
       if (this.state.noteIsCrypto) {
@@ -238,69 +234,21 @@ class Edict extends Component {
 
   alertConfirmPass() {
     return (
-      <CustomAlert
+      <AlertConfirmPass
         visible={this.state.confirmPassVisible}
-        title='Confirme sua senha'
-        buttons={[
-          {
-            text: 'CANCELAR',
-            onPress: () => this.cancelConfirmationPass(),
-            key: 1,
-          },
-          {
-            text: 'OK',
-            onPress: () => this.confirmPass(),
-            key: 2,
-          },
-        ]}
-      >
-        <TextInput
-          autoFocus
-          secureTextEntry
-          autoCapitalize='none'
-          value={this.state.pass}
-          onChangeText={text => this.setState({ pass: text })}
-        />
-      </CustomAlert>
+        onPressCancel={() => this.cancelConfirmationPass()}
+        onPressConfirm={(pass) => this.confirmPass(pass)}
+      />
     );
   }
 
   alertSetPass() {
     return (
-      <CustomAlert
+      <AlertSetPass
         visible={this.state.setPassVisible}
-        title='Insira uma senha para bloquear a mensagem'
-        buttons={[
-          {
-            text: 'CANCELAR',
-            onPress: () => this.setState({ setPassVisible: false }),
-            key: 1,
-          },
-          {
-            text: 'OK',
-            onPress: () => this.checkPass(),
-            key: 2,
-          },
-        ]}
-      >
-        <Text>Senha</Text>
-        <TextInput
-          autoFocus
-          secureTextEntry
-          autoCapitalize='none'
-          value={this.state.pass}
-          onChangeText={text => this.setState({ pass: text })}
-          onSubmitEditing={() => this.refs.check.focus()}
-        />
-        <Text>Confirme sua senha</Text>
-        <TextInput
-          ref='check'
-          secureTextEntry
-          autoCapitalize='none'
-          value={this.state.passCheck}
-          onChangeText={text => this.setState({ passCheck: text })}
-        />
-      </CustomAlert>
+        onPressCancel={() => this.setState({ setPassVisible: false })}
+        onPressConfirm={(pass, check) => this.checkPass(pass, check)}
+      />
     );
   }
 
