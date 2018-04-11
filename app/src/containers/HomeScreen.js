@@ -17,6 +17,8 @@ import { getNotes, deleteNote } from '../actions';
 import { NAV_ADD_NOTE, NAV_EDIT_NOTE } from '../actions/types';
 import Item from '../components/Item';
 import AddItem from '../components/AddItem';
+import AlertConfirmPass from '../components/AlertConfirmPass';
+import { confirmPass } from '../utils';
 
 class HomeScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -35,17 +37,50 @@ class HomeScreen extends Component {
     />
   })
 
+  state = {
+    confirmPassVisible: false,
+    passCorrect: true,
+    note: null,
+  }
+
   componentDidMount() {
     this.props.getNotes();
   }
 
   onPressDelete(note) {
+    this.setState({ note });
+
+    if (note.locked) {
+      this.setState({ confirmPassVisible: true });
+    } else {
+      this.confirmDelete();
+    }
+  }
+
+  confirmDelete() {
     Alert.alert('', 'Apagar nota definitivamente?',
       [
         { text: 'CANCELAR', onPress: () => {} },
-        { text: 'APAGAR', onPress: () => this.props.deleteNote(note) }
+        { text: 'APAGAR',
+          onPress: () => {
+            this.props.deleteNote(this.state.note);
+            this.setState({ note: null });
+          },
+        }
       ]
     );
+  }
+
+  async confirmPass(pass) {
+    const passValid = await confirmPass(pass);
+
+    this.setState({ passCorrect: false });
+
+    if (passValid) {
+      this.setState({ confirmPassVisible: false, passCorrect: true });
+
+      this.confirmDelete();
+    }
   }
 
   emptyState() {
@@ -59,10 +94,26 @@ class HomeScreen extends Component {
     );
   }
 
+  alertConfirmPass() {
+    return (
+      <AlertConfirmPass
+        visible={this.state.confirmPassVisible}
+        correct={this.state.passCorrect}
+        onPressCancel={() => this.setState({
+          confirmPassVisible: false, passCorrect: true
+        })}
+        onPressConfirm={(pass) => this.confirmPass(pass)}
+      />
+    );
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor='#7325A1' />
+
+        {this.alertConfirmPass()}
+
         {this.props.notes.length ?
           <ScrollView>
             <View style={{ paddingVertical: 5 }}>

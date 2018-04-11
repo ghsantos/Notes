@@ -12,12 +12,11 @@ import CustomAlert from './CustomAlert';
 export default class AlertConfirmPass extends Component {
   state = {
     pass: '',
-    correct: true,
   }
 
   onPressConfirm() {
     this.props.onPressConfirm(this.state.pass);
-    this.setState({ pass: '', correct: false });
+    this.setState({ pass: '' });
   }
 
   render() {
@@ -39,7 +38,7 @@ export default class AlertConfirmPass extends Component {
         ]}
       >
         {
-          !this.state.correct &&
+          !this.props.correct &&
           <Text style={styles.textIncorrect}>
             Senha incorreta, tente novamente.
           </Text>

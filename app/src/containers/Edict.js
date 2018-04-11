@@ -22,6 +22,7 @@ import Header from '../components/Header';
 
 import AlertConfirmPass from '../components/AlertConfirmPass';
 import AlertSetPass from '../components/AlertSetPass';
+import { hasCryptoPass, savePass, confirmPass } from '../utils';
 
 class Edict extends Component {
   static navigationOptions = { header: null, drawerLockMode: 'locked-closed' };
@@ -41,8 +42,8 @@ class Edict extends Component {
     locked: false,
     confirmPassVisible: false,  // CustomAlert confirm pass
     setPassVisible: false,      // CustomAlert set pass
-    cryptoPass: '',
     passChecked: '',
+    passCorrect: true,
     noteIsCrypto: false,
   }
 
@@ -54,7 +55,7 @@ class Edict extends Component {
       this.setState({ type: 'UPDATE', key, title, color, locked });
 
       if (locked) {
-        this.getCryptoPass(this.setState({ confirmPassVisible: true, noteIsCrypto: true }));
+        this.setState({ confirmPassVisible: true, noteIsCrypto: true });
       } else {
           const note = this.props.navigation.state.params.note.note;
           this.setState({ note });
@@ -135,43 +136,36 @@ class Edict extends Component {
     }
   }
 
-  onPressLock() {
+  async onPressLock() {
+    const hasPass = await hasCryptoPass();
+
     if (this.state.locked) {
       this.setState({ locked: false });
     } else if (!this.state.passChecked) {
-      this.getCryptoPass(
-        () => this.setState({ confirmPassVisible: true }),
-        () => this.setState({ setPassVisible: true }),
-      );
+      if (hasPass) {
+        this.setState({ confirmPassVisible: true });
+      } else {
+        this.setState({ setPassVisible: true });
+      }
     } else {
       this.setState({ locked: true });
     }
   }
 
-  getCryptoPass(getPassSucess = () => {}, getPassFail = () => {}) {
-    AsyncStorage.getItem('password', (err, pass) => {
-      if (pass !== null) {
-        this.setState({ cryptoPass: pass });
-        getPassSucess();
-      } else {
-        getPassFail();
-      }
-    });
-  }
-
   checkPass(pass, passCheck) {
     if (pass !== '' && pass === passCheck) {
-      const cryptoPass = CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex);
-
       this.setState({ setPassVisible: false, passChecked: pass, locked: true });
-      AsyncStorage.setItem('password', cryptoPass);
+
+      savePass(pass);
     }
   }
 
-  confirmPass(pass) {
-    const { cryptoPass } = this.state;
+  async confirmPass(pass) {
+    const passValid = await confirmPass(pass);
 
-    if (CryptoJS.SHA256(pass).toString(CryptoJS.enc.Hex) === cryptoPass) {
+    this.setState({ passCorrect: false });
+
+    if (passValid) {
       if (this.state.noteIsCrypto) {
         const cryptoNote = this.props.navigation.state.params.note.note;
         const note = CryptoJS.AES.decrypt(cryptoNote, pass).toString(CryptoJS.enc.Utf8);
@@ -179,14 +173,17 @@ class Edict extends Component {
         this.setState({ noteIsCrypto: false, note });
       }
 
-      this.setState({ passChecked: pass, confirmPassVisible: false, locked: true });
+      this.setState({
+        passChecked: pass,
+        confirmPassVisible: false,
+        locked: true,
+        passCorrect: true,
+      });
     }
-
-    this.setState({ pass: '' });
   }
 
   cancelConfirmationPass() {
-    this.setState({ confirmPassVisible: false });
+    this.setState({ confirmPassVisible: false, passCorrect: true });
 
     if (this.state.noteIsCrypto) {
       this.props.navigation.goBack(null);
@@ -236,6 +233,7 @@ class Edict extends Component {
     return (
       <AlertConfirmPass
         visible={this.state.confirmPassVisible}
+        correct={this.state.passCorrect}
         onPressCancel={() => this.cancelConfirmationPass()}
         onPressConfirm={(pass) => this.confirmPass(pass)}
       />
