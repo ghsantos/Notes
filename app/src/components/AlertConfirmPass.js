@@ -19,6 +19,11 @@ export default class AlertConfirmPass extends Component {
     this.setState({ pass: '' });
   }
 
+  onPressCancel() {
+    this.props.onPressCancel();
+    this.setState({ pass: '' });
+  }
+
   render() {
     return (
       <CustomAlert
@@ -27,7 +32,7 @@ export default class AlertConfirmPass extends Component {
         buttons={[
           {
             text: 'CANCELAR',
-            onPress: () => this.props.onPressCancel(),
+            onPress: () => this.onPressCancel(),
             key: 1,
           },
           {
