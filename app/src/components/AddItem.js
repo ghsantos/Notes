@@ -22,7 +22,6 @@ export default class AddItem extends Component {
 const styles = StyleSheet.create({
   container: {
     elevation: 3,
-    marginTop: 3,
     padding: 6,
     flexDirection: 'row',
     backgroundColor: 'white',

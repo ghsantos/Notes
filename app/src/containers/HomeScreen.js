@@ -63,22 +63,24 @@ class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor='#7325A1' />
-
-        {!!this.props.notes.length ?
+        {this.props.notes.length ?
           <ScrollView>
-            {this.props.notes.map(note =>
-              <Item
-                title={note.title}
-                note={note.note}
-                color={note.color}
-                key={note.key}
-                locked={note.locked}
-                onPress={() =>
-                  this.props.navigation.dispatch({ type: NAV_EDIT_NOTE, note })
-                }
-                onPressDelete={() => this.onPressDelete(note)}
-              />
-            )}
+            <View style={{ paddingVertical: 5 }}>
+
+              {this.props.notes.map(note =>
+                <Item
+                  title={note.title}
+                  note={note.note}
+                  color={note.color}
+                  key={note.key}
+                  locked={note.locked}
+                  onPress={() =>
+                    this.props.navigation.dispatch({ type: NAV_EDIT_NOTE, note })
+                  }
+                  onPressDelete={() => this.onPressDelete(note)}
+                />
+              )}
+            </View>
           </ScrollView>
         : this.emptyState() }
 
@@ -99,6 +101,5 @@ export default connect(mapStateToProps, { getNotes, deleteNote })(HomeScreen);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 5,
   },
 });
