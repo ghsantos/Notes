@@ -43,7 +43,7 @@ export default class CustomDrawer extends Component {
             }
           />
           <DrawerItem
-            text='Arquivo'
+            text='Lixeira'
             active={this.props.activeItemKey === 'Trash'}
             onPress={() => this.props.navigation.navigate('Trash')}
             icon={
