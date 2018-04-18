@@ -23,7 +23,8 @@ const Stack = StackNavigator({
 
 export const AppNavigator = DrawerNavigator({
   Home: { screen: Stack },
-  Second: { screen: SecondScreen },
+  Archive: { screen: Stack },
+  Trash: { screen: Stack },
 },
 {
   contentComponent: (props) => <CustomDrawer {...props} />,

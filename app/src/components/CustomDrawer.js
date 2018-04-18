@@ -2,22 +2,58 @@
 
 import React, { Component } from 'react';
 import {
-  Text,
-  StyleSheet,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 import {
-  DrawerItems,
   SafeAreaView,
 } from 'react-navigation';
+import CommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+import DrawerItem from './DrawerItem';
 
 export default class CustomDrawer extends Component {
   render() {
     return (
       <ScrollView>
         <SafeAreaView style={styles.container} forceInset={{ top: 'always', }}>
-          <Text>Notas</Text>
-          <DrawerItems {...this.props} />
+          <DrawerItem
+            text='Notas'
+            active={this.props.activeItemKey === 'Home'}
+            onPress={() => this.props.navigation.navigate('Home')}
+            icon={
+              <CommunityIcons
+                name='note'
+                size={30}
+                color='#0000009A'
+              />
+            }
+          />
+          <DrawerItem
+            text='Arquivo'
+            active={this.props.activeItemKey === 'Archive'}
+            onPress={() => this.props.navigation.navigate('Archive')}
+            icon={
+              <MaterialIcons
+                name='archive'
+                size={30}
+                color='#0000009A'
+              />
+            }
+          />
+          <DrawerItem
+            text='Arquivo'
+            active={this.props.activeItemKey === 'Trash'}
+            onPress={() => this.props.navigation.navigate('Trash')}
+            icon={
+              <MaterialIcons
+                name='delete'
+                size={30}
+                color='#0000009A'
+              />
+            }
+          />
         </SafeAreaView>
       </ScrollView>
     );
@@ -27,16 +63,5 @@ export default class CustomDrawer extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  uglyDrawerItem: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#E73536',
-    padding: 15,
-    margin: 5,
-    borderRadius: 2,
-    borderColor: '#E73536',
-    borderWidth: 1,
-    textAlign: 'center'
   },
 });
