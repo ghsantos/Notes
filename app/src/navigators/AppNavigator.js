@@ -8,13 +8,30 @@ import {
 } from 'react-navigation';
 
 import HomeScreen from '../containers/HomeScreen';
+import ArchiveScreen from '../containers/ArchiveScreen';
+import TrashScreen from '../containers/TrashScreen';
 import Edict from '../containers/Edict';
-import SecondScreen from '../containers/SecondScreen';
 import CustomDrawer from '../components/CustomDrawer';
 import { addListener } from '../utils/redux';
 
-const Stack = StackNavigator({
-  main: { screen: HomeScreen },
+const Home = StackNavigator({
+  main: { screen: HomeScreen, params: { type: 'note' } },
+  edict: { screen: Edict },
+},
+{
+  headerMode: 'float',
+});
+
+const Archive = StackNavigator({
+  main: { screen: ArchiveScreen },
+  edict: { screen: Edict },
+},
+{
+  headerMode: 'float',
+});
+
+const Trash = StackNavigator({
+  main: { screen: TrashScreen },
   edict: { screen: Edict },
 },
 {
@@ -22,9 +39,9 @@ const Stack = StackNavigator({
 });
 
 export const AppNavigator = DrawerNavigator({
-  Home: { screen: Stack },
-  Archive: { screen: Stack },
-  Trash: { screen: Stack },
+  Home: { screen: Home },
+  Archive: { screen: Archive },
+  Trash: { screen: Trash },
 },
 {
   contentComponent: (props) => <CustomDrawer {...props} />,

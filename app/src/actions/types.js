@@ -5,3 +5,12 @@ export const NOTES_AVAILABLE = 'NOTES_AVAILABLE';
 export const ADD_NOTE = 'ADD_NOTE';
 export const UPDATE_NOTE = 'UPDATE_NOTE';
 export const DELETE_NOTE = 'DELETE_NOTE';
+
+export const ARCHIVES_AVAILABLE = 'ARCHIVES_AVAILABLE';
+export const ADD_ARCHIVE = 'ADD_ARCHIVE';
+export const UPDATE_ARCHIVE = 'UPDATE_ARCHIVE';
+export const DELETE_ARCHIVE = 'DELETE_ARCHIVE';
+
+export const ADD_TRASH = 'ADD_TRASH';
+export const TRASH_AVAILABLE = 'TRASH_AVAILABLE';
+export const DELETE_TRASH = 'DELETE_TRASH';

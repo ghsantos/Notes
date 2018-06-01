@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 
 export default class CustomAlert extends Component {
@@ -19,6 +20,8 @@ export default class CustomAlert extends Component {
         onRequestClose={() => {}}
       >
         <View style={styles.container}>
+          <StatusBar backgroundColor='#333' animated />
+
           <View style={styles.alert}>
             <Text style={styles.title}>{this.props.title}</Text>
 

@@ -8,12 +8,19 @@ import {
   NOTES_AVAILABLE,
   UPDATE_NOTE,
   DELETE_NOTE,
+  ARCHIVES_AVAILABLE,
+  ADD_ARCHIVE,
+  UPDATE_ARCHIVE,
+  DELETE_ARCHIVE,
+  ADD_TRASH,
+  TRASH_AVAILABLE,
+  DELETE_TRASH,
 } from '../actions/types';
 import { AppNavigator } from '../navigators/AppNavigator';
 
-const INITIAL_STATE = { notes: [] };
+const INITIAL_NOTES_STATE = { notes: [] };
 
-function noteReducer(state = INITIAL_STATE, action) {
+function noteReducer(state = INITIAL_NOTES_STATE, action) {
   let nextState;
 
   let notes = JSON.parse(JSON.stringify(state.notes));
@@ -26,10 +33,10 @@ function noteReducer(state = INITIAL_STATE, action) {
       nextState = { notes };
       break;
 
-      case NOTES_AVAILABLE:
-        notes = JSON.parse(JSON.stringify(action.notes));
-        nextState = { notes };
-        break;
+    case NOTES_AVAILABLE:
+      notes = JSON.parse(JSON.stringify(action.notes));
+      nextState = { notes };
+      break;
 
     case UPDATE_NOTE:
       note = action.note;
@@ -45,6 +52,93 @@ function noteReducer(state = INITIAL_STATE, action) {
       break;
 
     case DELETE_NOTE:
+      note = action.note;
+      index = getIndex(notes, note.key);
+
+      if (index !== -1) {
+        notes.splice(index, 1);
+      }
+
+      nextState = { notes };
+      break;
+    default:
+
+  }
+
+  return nextState || state;
+}
+
+const INITIAL_ARCHIVE_STATE = { notes: [] };
+
+function archiveReducer(state = INITIAL_ARCHIVE_STATE, action) {
+  let nextState;
+
+  let notes = JSON.parse(JSON.stringify(state.notes));
+  let note;
+  let index;
+
+  switch (action.type) {
+    case ADD_ARCHIVE:
+      notes.unshift(action.note);
+      nextState = { notes };
+      break;
+
+    case ARCHIVES_AVAILABLE:
+      notes = JSON.parse(JSON.stringify(action.notes));
+      nextState = { notes };
+      break;
+
+    case UPDATE_ARCHIVE:
+      note = action.note;
+      index = getIndex(notes, note.key);
+
+      if (index !== -1) {
+        notes[index].title = note.title;
+        notes[index].note = note.note;
+        notes[index].color = note.color;
+        notes[index].locked = note.locked;
+      }
+      nextState = { notes };
+      break;
+
+    case DELETE_ARCHIVE:
+      note = action.note;
+      index = getIndex(notes, note.key);
+
+      if (index !== -1) {
+        notes.splice(index, 1);
+      }
+
+      nextState = { notes };
+      break;
+    default:
+
+  }
+
+  return nextState || state;
+}
+
+const INITIAL_TRASH_STATE = { notes: [] };
+
+function trashReducer(state = INITIAL_TRASH_STATE, action) {
+  let nextState;
+
+  let notes = JSON.parse(JSON.stringify(state.notes));
+  let note;
+  let index;
+
+  switch (action.type) {
+    case ADD_TRASH:
+      notes.unshift(action.note);
+      nextState = { notes };
+      break;
+
+    case TRASH_AVAILABLE:
+      notes = JSON.parse(JSON.stringify(action.notes));
+      nextState = { notes };
+      break;
+
+    case DELETE_TRASH:
       note = action.note;
       index = getIndex(notes, note.key);
 
@@ -98,6 +192,8 @@ function getIndex(data, key) {
 const AppReducer = combineReducers({
   nav,
   noteReducer,
+  archiveReducer,
+  trashReducer,
 });
 
 export default AppReducer;

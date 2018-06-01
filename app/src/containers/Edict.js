@@ -3,16 +3,17 @@
 import React, { Component } from 'react';
 import {
   Alert,
-  AsyncStorage,
   View,
   TextInput,
   StatusBar,
   StyleSheet,
   BackHandler,
+  Platform,
   TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import CommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import CryptoJS from 'crypto-js';
 
@@ -38,6 +39,7 @@ class Edict extends Component {
     key: '',
     title: '',
     note: '',
+    typeAnnotation: 'note',
     color: '#FFFFFF',
     locked: false,
     confirmPassVisible: false,  // CustomAlert confirm pass
@@ -50,9 +52,17 @@ class Edict extends Component {
   componentWillMount() {
     if (this.props.navigation.state.params) {
       const { key, title, color } = this.props.navigation.state.params.note;
-      const { locked } = this.props.navigation.state.params.note || false;
+      const { locked: locked = false } = this.props.navigation.state.params.note;
+      const { typeAnnotation: typeAnnotation = 'note' } = this.props.navigation.state.params.note;
 
-      this.setState({ type: 'UPDATE', key, title, color, locked });
+      this.setState({
+        type: 'UPDATE',
+        key,
+        title,
+        color,
+        locked,
+        typeAnnotation,
+      });
 
       if (locked) {
         this.setState({ confirmPassVisible: true, noteIsCrypto: true });
@@ -82,51 +92,104 @@ class Edict extends Component {
     this.backButtonListener.remove();
   }
 
+  actionGoBack() {
+    this.props.navigation.goBack(null);
+  }
+
   generateKey() {
     return new Date().getTime().toString();
   }
 
+  getNoteToSave() {
+    let noteToSave;
+
+    if (this.state.locked) {
+      noteToSave = CryptoJS.AES.encrypt(this.state.note, this.state.passChecked).toString();
+    } else {
+      noteToSave = this.state.note;
+    }
+
+    const note = {
+      key: this.state.key,
+      title: this.state.title,
+      note: noteToSave,
+      color: this.state.color,
+      typeAnnotation: this.state.typeAnnotation,
+      locked: this.state.locked,
+    };
+
+    return note;
+  }
+
   goBack() {
     this.saveNote();
-    this.props.navigation.goBack(null);
+    this.actionGoBack();
+  }
+
+  archive() {
+    const note = this.getNoteToSave();
+
+    this.props.deleteNote(note);
+    this.props.addNote({ ...note, typeAnnotation: 'archive' });
+
+    this.actionGoBack();
+  }
+
+  unarchive() {
+    const note = this.getNoteToSave();
+
+    this.props.deleteNote(note);
+    this.props.addNote({ ...note, typeAnnotation: 'note' });
+
+    this.actionGoBack();
   }
 
   delete() {
     if (this.state.title !== '' || this.state.note !== '') {
-      Alert.alert('', 'Apagar nota definitivamente?',
-        [
-          { text: 'CANCELAR', onPress: () => {} },
-          { text: 'APAGAR', onPress: () => this.onDeleteNote() }
-        ]
-      );
+      if (this.state.typeAnnotation === 'trash') {
+        Alert.alert('', 'Apagar nota definitivamente?',
+          [
+            { text: 'CANCELAR', onPress: () => {} },
+            { text: 'APAGAR', onPress: () => this.onDeleteNote() }
+          ]
+        );
+      } else {
+        Alert.alert('', 'Mover nota para a lixeira?',
+          [
+            { text: 'CANCELAR', onPress: () => {} },
+            { text: 'MOVER', onPress: () => this.onDeleteNote() }
+          ]
+        );
+      }
     }
   }
 
+  restore() {
+    const note = this.getNoteToSave();
+
+    this.props.deleteNote(note);
+    this.props.addNote({ ...note, typeAnnotation: 'note' });
+
+    this.actionGoBack();
+  }
+
   onDeleteNote() {
+    const note = this.getNoteToSave();
+
     if (this.state.type === 'UPDATE') {
-      const note = { key: this.state.key, title: this.state.title, note: this.state.note };
       this.props.deleteNote(note);
     }
-    this.props.navigation.goBack(null);
+
+    if (note.typeAnnotation !== 'trash') {
+      this.props.addNote({ ...note, typeAnnotation: 'trash' });
+    }
+
+    this.actionGoBack();
   }
 
   saveNote() {
     if (this.state.title !== '' || this.state.note !== '') {
-      let noteToSave;
-
-      if (this.state.locked) {
-        noteToSave = CryptoJS.AES.encrypt(this.state.note, this.state.passChecked).toString();
-      } else {
-        noteToSave = this.state.note;
-      }
-
-      const note = {
-        key: this.state.key,
-        title: this.state.title,
-        note: noteToSave,
-        color: this.state.color,
-        locked: this.state.locked,
-      };
+      const note = this.getNoteToSave();
 
       if (this.state.type === 'ADD') {
         this.props.addNote(note);
@@ -186,8 +249,45 @@ class Edict extends Component {
     this.setState({ confirmPassVisible: false, passCorrect: true });
 
     if (this.state.noteIsCrypto) {
-      this.props.navigation.goBack(null);
+      this.actionGoBack();
     }
+  }
+
+  headerButton() {
+    if (this.state.typeAnnotation === 'note') {
+      return (
+        <TouchableOpacity onPress={() => this.archive()}>
+          <MaterialIcons
+            name='archive'
+            size={30}
+            color='#0000009A'
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      );
+    } else if (this.state.typeAnnotation === 'archive') {
+      return (
+        <TouchableOpacity onPress={() => this.unarchive()}>
+          <MaterialIcons
+            name='unarchive'
+            size={30}
+            color='#0000009A'
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <TouchableOpacity onPress={() => this.restore()}>
+        <CommunityIcons
+          name='delete-restore'
+          size={30}
+          color='#0000009A'
+          style={styles.icon}
+        />
+      </TouchableOpacity>
+    );
   }
 
   header() {
@@ -196,7 +296,7 @@ class Edict extends Component {
         style={{ backgroundColor: this.state.color }}
         headerLeft={
           <TouchableOpacity onPress={() => this.goBack()}>
-            <Icon
+            <CommunityIcons
               name='arrow-left'
               size={30}
               color='#0000009A'
@@ -206,17 +306,22 @@ class Edict extends Component {
         }
         headerRight={
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => this.onPressLock()}>
-              <Icon
-                name={this.state.locked ? 'lock' : 'lock-open'}
-                size={28}
-                color='#0000009A'
-                style={styles.icon}
-              />
-            </TouchableOpacity>
+            {
+              this.state.typeAnnotation !== 'trash' &&
+              <TouchableOpacity onPress={() => this.onPressLock()}>
+                <CommunityIcons
+                  name={this.state.locked ? 'lock' : 'lock-open'}
+                  size={28}
+                  color='#0000009A'
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+            }
+
+            {this.headerButton()}
 
             <TouchableOpacity onPress={() => this.delete()}>
-              <Icon
+              <CommunityIcons
                 name='delete'
                 size={30}
                 color='#0000009A'
@@ -253,7 +358,10 @@ class Edict extends Component {
   render() {
     return (
       <View style={[styles.container, { backgroundColor: this.state.color }]}>
-        <StatusBar backgroundColor={this.state.color} barStyle='dark-content' />
+        {
+          Platform.Version >= 23 &&
+          <StatusBar backgroundColor={this.state.color} barStyle='dark-content' />
+        }
 
         {this.header()}
         {this.alertConfirmPass()}
@@ -263,10 +371,11 @@ class Edict extends Component {
           <TextInput
             value={this.state.title}
             onChangeText={text => this.setState({ title: text })}
-            autoFocus
+            autoFocus={!this.props.navigation.state.params}
+            editable={this.state.typeAnnotation === 'note'}
             placeholder='Título'
             underlineColorAndroid='transparent'
-            style={{ fontSize: 18, fontWeight: 'bold' }}
+            style={{ fontSize: 18, fontWeight: 'bold', color: '#111' }}
             onSubmitEditing={() => this.refs.nota.focus()}
           />
 
@@ -275,20 +384,24 @@ class Edict extends Component {
               ref='nota'
               value={this.state.note}
               onChangeText={text => this.setState({ note: text })}
+              editable={this.state.typeAnnotation === 'note'}
               placeholder='Nota'
               underlineColorAndroid='transparent'
               multiline
-              style={{ flex: 1, textAlignVertical: 'top' }}
+              style={{ flex: 1, textAlignVertical: 'top', color: '#333' }}
             />
           </View>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {colors.map(color => <TouchableOpacity
-              key={color}
-              style={[styles.colorBox, { backgroundColor: color }]}
-              onPress={() => this.setState({ color })}
-            />)}
-          </View>
+          {
+            this.state.typeAnnotation !== 'trash' &&
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              {colors.map(color => <TouchableOpacity
+                key={color}
+                style={[styles.colorBox, { backgroundColor: color }]}
+                onPress={() => this.setState({ color })}
+              />)}
+            </View>
+          }
         </View>
       </View>
     );

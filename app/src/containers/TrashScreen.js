@@ -9,24 +9,22 @@ import {
   StatusBar,
   Text,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 
-import { getNotes, deleteNote, addNote } from '../actions';
-import { NAV_ADD_NOTE, NAV_EDIT_NOTE } from '../actions/types';
+import { getNotes, deleteNote } from '../actions';
+import { NAV_EDIT_NOTE } from '../actions/types';
 import Item from '../components/Item';
-import AddItem from '../components/AddItem';
 import AlertConfirmPass from '../components/AlertConfirmPass';
 import { confirmPass } from '../utils';
 
 class HomeScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
     headerStyle: { backgroundColor: '#7325A1' },
-    title: 'Notas',
+    title: 'Lixeira',
     headerTintColor: 'white',
     gesturesEnabled: false,
-    headerLeft: <Icon
+    headerLeft: <MaterialIcons
       name='menu'
       size={30}
       color='white'
@@ -44,8 +42,7 @@ class HomeScreen extends Component {
   }
 
   componentDidMount() {
-    //console.log(this.props);
-    this.props.getNotes('note');
+    this.props.getNotes('trash');
   }
 
   onPressDelete(note) {
@@ -59,13 +56,12 @@ class HomeScreen extends Component {
   }
 
   confirmDelete() {
-    Alert.alert('', 'Mover nota para a lixeira?',
+    Alert.alert('', 'Apagar nota definitivamente?',
       [
         { text: 'CANCELAR', onPress: () => {} },
-        { text: 'MOVER',
+        { text: 'APAGAR',
           onPress: () => {
             this.props.deleteNote(this.state.note);
-            this.props.addNote({ ...this.state.note, typeAnnotation: 'trash' });
             this.setState({ note: null });
           },
         }
@@ -88,9 +84,9 @@ class HomeScreen extends Component {
   emptyState() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <CommunityIcon name='note' size={70} color='#CFCFCF' />
+        <MaterialIcons name='delete' size={70} color='#CFCFCF' />
         <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
-          Suas notas adicionadas aparecem aqui
+          Lixeira vazia
         </Text>
       </View>
     );
@@ -136,8 +132,6 @@ class HomeScreen extends Component {
             </View>
           </ScrollView>
         : this.emptyState() }
-
-        <AddItem onPress={() => this.props.navigation.dispatch({ type: NAV_ADD_NOTE })} />
       </View>
     );
   }
@@ -145,11 +139,11 @@ class HomeScreen extends Component {
 
 function mapStateToProps(state, props) {
     return {
-      notes: state.noteReducer.notes
+      notes: state.trashReducer.notes
     };
 }
 
-export default connect(mapStateToProps, { getNotes, deleteNote, addNote })(HomeScreen);
+export default connect(mapStateToProps, { getNotes, deleteNote })(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {
