@@ -127,12 +127,14 @@ class Edict extends Component {
   }
 
   archive() {
-    const note = this.getNoteToSave();
+    if (this.state.title !== '' || this.state.note !== '') {
+      const note = this.getNoteToSave();
 
-    this.props.deleteNote(note);
-    this.props.addNote({ ...note, typeAnnotation: 'archive' });
+      this.props.deleteNote(note);
+      this.props.addNote({ ...note, typeAnnotation: 'archive' });
 
-    this.actionGoBack();
+      this.actionGoBack();
+    }
   }
 
   unarchive() {
