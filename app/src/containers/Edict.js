@@ -100,6 +100,10 @@ class Edict extends Component {
     return new Date().getTime().toString();
   }
 
+  noteIsValid() {
+    return this.state.title !== '' || this.state.note !== '';
+  }
+
   getNoteToSave() {
     let noteToSave;
 
@@ -127,7 +131,7 @@ class Edict extends Component {
   }
 
   archive() {
-    if (this.state.title !== '' || this.state.note !== '') {
+    if (this.noteIsValid()) {
       const note = this.getNoteToSave();
 
       this.props.deleteNote(note);
@@ -147,7 +151,7 @@ class Edict extends Component {
   }
 
   delete() {
-    if (this.state.title !== '' || this.state.note !== '') {
+    if (this.noteIsValid()) {
       if (this.state.typeAnnotation === 'trash') {
         Alert.alert('', 'Apagar nota definitivamente?',
           [
@@ -190,7 +194,7 @@ class Edict extends Component {
   }
 
   saveNote() {
-    if (this.state.title !== '' || this.state.note !== '') {
+    if (this.noteIsValid()) {
       const note = this.getNoteToSave();
 
       if (this.state.type === 'ADD') {
