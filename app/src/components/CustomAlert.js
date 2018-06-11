@@ -2,12 +2,13 @@
 
 import React, { Component } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Modal,
-  TouchableOpacity,
+  ScrollView,
   StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default class CustomAlert extends Component {
@@ -25,7 +26,9 @@ export default class CustomAlert extends Component {
           <View style={styles.alert}>
             <Text style={styles.title}>{this.props.title}</Text>
 
-            {this.props.children}
+            <ScrollView>
+              {this.props.children}
+            </ScrollView>
 
             <View style={styles.buttonContainer}>
               {this.props.buttons.map(
@@ -50,19 +53,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1119'
+    backgroundColor: '#1119',
+    paddingVertical: 50,
   },
   alert: {
     backgroundColor: '#fff',
     borderRadius: 3,
+    width: '85%',
     paddingVertical: 18,
     paddingHorizontal: 25,
-    width: '85%'
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -71,7 +76,7 @@ const styles = StyleSheet.create({
   button: {
     marginHorizontal: 5,
     paddingHorizontal: 5,
-    marginTop: 5
+    marginTop: 10,
   },
   textButton: {
     fontSize: 15,
