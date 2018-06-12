@@ -12,6 +12,9 @@ import {
   ADD_TRASH,
   TRASH_AVAILABLE,
   DELETE_TRASH,
+  MARKERS_AVAILABLE,
+  UPDATE_MARKERS,
+  SET_MARKER_KEY,
 } from './types';
 
 export function getNotes(typeAnnotation) {
@@ -59,11 +62,7 @@ export function updateNote(note) {
         const index = getIndex(newNotes, note.key);
 
         if (index !== -1) {
-          newNotes[index].title = note.title;
-          newNotes[index].note = note.note;
-          newNotes[index].color = note.color;
-          newNotes[index].locked = note.locked;
-          newNotes[index].typeAnnotation = note.typeAnnotation;
+          newNotes[index] = { ...note };
 
           AsyncStorage.setItem(note.typeAnnotation, JSON.stringify(newNotes), () => {
             if (note.typeAnnotation === 'note') {
@@ -101,6 +100,28 @@ export function deleteNote(note) {
       }
     });
   };
+}
+
+export function getMarkers() {
+  return dispatch => {
+    AsyncStorage.getItem('markers', (err, markers) => {
+      if (markers !== null) {
+        dispatch({ type: MARKERS_AVAILABLE, markers: JSON.parse(markers) });
+      }
+    });
+  };
+}
+
+export function updateMarkers(newMarkers) {
+  return dispatch => {
+    AsyncStorage.setItem('markers', JSON.stringify(newMarkers), () => {
+      dispatch({ type: UPDATE_MARKERS, markers: newMarkers });
+    });
+  };
+}
+
+export function setMarkerKey(markerKey) {
+  return dispatch => dispatch({ type: SET_MARKER_KEY, markerKey });
 }
 
 function getIndex(data, key) {

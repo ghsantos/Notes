@@ -15,6 +15,9 @@ import {
   ADD_TRASH,
   TRASH_AVAILABLE,
   DELETE_TRASH,
+  MARKERS_AVAILABLE,
+  UPDATE_MARKERS,
+  SET_MARKER_KEY,
 } from '../actions/types';
 import { AppNavigator } from '../navigators/AppNavigator';
 
@@ -43,10 +46,7 @@ function noteReducer(state = INITIAL_NOTES_STATE, action) {
       index = getIndex(notes, note.key);
 
       if (index !== -1) {
-        notes[index].title = note.title;
-        notes[index].note = note.note;
-        notes[index].color = note.color;
-        notes[index].locked = note.locked;
+        notes[index] = { ...note };
       }
       nextState = { notes };
       break;
@@ -93,10 +93,7 @@ function archiveReducer(state = INITIAL_ARCHIVE_STATE, action) {
       index = getIndex(notes, note.key);
 
       if (index !== -1) {
-        notes[index].title = note.title;
-        notes[index].note = note.note;
-        notes[index].color = note.color;
-        notes[index].locked = note.locked;
+        notes[index] = { ...note };
       }
       nextState = { notes };
       break;
@@ -184,6 +181,33 @@ function nav(state, action) {
   return nextState || state;
 }
 
+const INITIAL_MARKERS_STATE = { markers: [] };
+
+function markersReducer(state = INITIAL_MARKERS_STATE, action) {
+  switch (action.type) {
+    case MARKERS_AVAILABLE:
+      return { markers: [...action.markers] };
+
+    case UPDATE_MARKERS:
+      return { markers: [...action.markers] };
+
+    default:
+      return state;
+  }
+}
+
+const INITIAL_MARKER_KEY_STATE = { markerKey: '' };
+
+function markerKeyReducer(state = INITIAL_MARKER_KEY_STATE, action) {
+  switch (action.type) {
+    case SET_MARKER_KEY:
+      return { markerKey: action.markerKey };
+
+    default:
+      return state;
+  }
+}
+
 function getIndex(data, key) {
   const clone = JSON.parse(JSON.stringify(data));
   return clone.findIndex((obj) => parseInt(obj.key, 10) === parseInt(key, 10));
@@ -194,6 +218,8 @@ const AppReducer = combineReducers({
   noteReducer,
   archiveReducer,
   trashReducer,
+  markersReducer,
+  markerKeyReducer,
 });
 
 export default AppReducer;

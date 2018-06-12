@@ -14,6 +14,7 @@ import {
 import { connect } from 'react-redux';
 import CommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import CheckBox from 'react-native-checkbox-heaven';
 
 import CryptoJS from 'crypto-js';
 
@@ -23,6 +24,7 @@ import Header from '../components/Header';
 
 import AlertConfirmPass from '../components/AlertConfirmPass';
 import AlertSetPass from '../components/AlertSetPass';
+import CustomAlert from '../components/CustomAlert';
 import { hasCryptoPass, savePass, confirmPass } from '../utils';
 
 class Edict extends Component {
@@ -42,8 +44,10 @@ class Edict extends Component {
     typeAnnotation: 'note',
     color: '#FFFFFF',
     locked: false,
+    markersKey: [],
     confirmPassVisible: false,  // CustomAlert confirm pass
     setPassVisible: false,      // CustomAlert set pass
+    setMarkersVisible: false,
     passChecked: '',
     passCorrect: true,
     noteIsCrypto: false,
@@ -51,9 +55,14 @@ class Edict extends Component {
 
   componentWillMount() {
     if (this.props.navigation.state.params) {
-      const { key, title, color } = this.props.navigation.state.params.note;
-      const { locked: locked = false } = this.props.navigation.state.params.note;
-      const { typeAnnotation: typeAnnotation = 'note' } = this.props.navigation.state.params.note;
+      const {
+        key,
+        title,
+        color,
+        locked,
+        typeAnnotation,
+        markersKey,
+      } = this.props.navigation.state.params.note;
 
       this.setState({
         type: 'UPDATE',
@@ -62,6 +71,7 @@ class Edict extends Component {
         color,
         locked,
         typeAnnotation,
+        markersKey: [...markersKey],
       });
 
       if (locked) {
@@ -120,6 +130,7 @@ class Edict extends Component {
       color: this.state.color,
       typeAnnotation: this.state.typeAnnotation,
       locked: this.state.locked,
+      markersKey: [...this.state.markersKey],
     };
 
     return note;
@@ -259,6 +270,15 @@ class Edict extends Component {
     }
   }
 
+  markerChecked(key) {
+    for (const markerKey in this.props.markersKey) {
+      if (key === markerKey) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   headerButton() {
     if (this.state.typeAnnotation === 'note') {
       return (
@@ -314,6 +334,17 @@ class Edict extends Component {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {
               this.state.typeAnnotation !== 'trash' &&
+              <TouchableOpacity onPress={() => this.setState({ setMarkersVisible: true })}>
+                <CommunityIcons
+                  name='tag'
+                  size={28}
+                  color='#0000009A'
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+            }
+            {
+              this.state.typeAnnotation !== 'trash' &&
               <TouchableOpacity onPress={() => this.onPressLock()}>
                 <CommunityIcons
                   name={this.state.locked ? 'lock' : 'lock-open'}
@@ -361,6 +392,50 @@ class Edict extends Component {
     );
   }
 
+  alertMarkers() {
+    return (
+      <CustomAlert
+        visible={this.state.setMarkersVisible}
+        title='Selecione os marcadores para esta nota'
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => this.setState({ setMarkersVisible: false }),
+            key: 1,
+          },
+        ]}
+      >
+        {
+          this.props.markers.map(marker => (
+            <CheckBox
+              key={marker.key}
+              label={marker.text}
+              labelStyle={styles.labelStyle}
+              iconSize={28}
+              iconName='matMix'
+              checked={this.state.markersKey.indexOf(marker.key) !== -1}
+              checkedColor='#7325A1'
+              uncheckedColor='#0000009A'
+              onChange={
+                (val) => {
+                  if (val) {
+                    this.setState(prevState => ({
+                      markersKey: [...prevState.markersKey, marker.key]
+                    }));
+                  } else {
+                    this.setState(prevState => ({
+                      markersKey: prevState.markersKey.filter(markerKey => markerKey !== marker.key)
+                    }));
+                  }
+                }
+              }
+            />
+          ))
+        }
+      </CustomAlert>
+    );
+  }
+
   render() {
     return (
       <View style={[styles.container, { backgroundColor: this.state.color }]}>
@@ -372,6 +447,7 @@ class Edict extends Component {
         {this.header()}
         {this.alertConfirmPass()}
         {this.alertSetPass()}
+        {this.alertMarkers()}
 
         <View style={{ flex: 1, padding: 8 }}>
           <TextInput
@@ -414,8 +490,10 @@ class Edict extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-    return {};
+function mapStateToProps(state) {
+  return {
+    markers: state.markersReducer.markers,
+  };
 }
 
 export default connect(mapStateToProps, { addNote, updateNote, deleteNote })(Edict);

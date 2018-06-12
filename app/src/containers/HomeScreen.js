@@ -110,17 +110,28 @@ class HomeScreen extends Component {
   }
 
   render() {
+    let notes = [];
+    const markerKey = this.props.markerKey;
+
+    if (markerKey) {
+      notes = this.props.notes.filter(
+                note => note.markersKey.reduce((prev, next) => (prev || next === markerKey), false)
+              );
+    } else {
+      notes = this.props.notes;
+    }
+
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor='#7325A1' animated />
 
         {this.alertConfirmPass()}
 
-        {this.props.notes.length ?
+        {notes.length ?
           <ScrollView>
             <View style={{ paddingVertical: 5 }}>
 
-              {this.props.notes.map(note =>
+              {notes.map(note =>
                 <Item
                   title={note.title}
                   note={note.note}
@@ -143,9 +154,10 @@ class HomeScreen extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
     return {
-      notes: state.noteReducer.notes
+      notes: state.noteReducer.notes,
+      markerKey: state.markerKeyReducer.markerKey,
     };
 }
 

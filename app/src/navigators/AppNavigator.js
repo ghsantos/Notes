@@ -11,6 +11,7 @@ import HomeScreen from '../containers/HomeScreen';
 import ArchiveScreen from '../containers/ArchiveScreen';
 import TrashScreen from '../containers/TrashScreen';
 import Edict from '../containers/Edict';
+import MarkerEdict from '../containers/MarkerEdict';
 import CustomDrawer from '../components/CustomDrawer';
 import { addListener } from '../utils/redux';
 
@@ -38,13 +39,21 @@ const Trash = StackNavigator({
   headerMode: 'float',
 });
 
-export const AppNavigator = DrawerNavigator({
+const MainNavigator = DrawerNavigator({
   Home: { screen: Home },
   Archive: { screen: Archive },
   Trash: { screen: Trash },
 },
 {
   contentComponent: (props) => <CustomDrawer {...props} />,
+});
+
+export const AppNavigator = StackNavigator({
+  main: { screen: MainNavigator },
+  marker: { screen: MarkerEdict },
+},
+{
+  headerMode: 'none',
 });
 
 class AppWithNavigationState extends React.Component {
