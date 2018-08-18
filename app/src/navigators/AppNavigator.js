@@ -6,6 +6,7 @@ import {
   StackNavigator,
   DrawerNavigator,
 } from 'react-navigation';
+import { Animated, Easing } from 'react-native';
 
 import HomeScreen from '../containers/HomeScreen';
 import ArchiveScreen from '../containers/ArchiveScreen';
@@ -15,12 +16,43 @@ import MarkerEdict from '../containers/MarkerEdict';
 import CustomDrawer from '../components/CustomDrawer';
 import { addListener } from '../utils/redux';
 
+const transitionConfig = () => ({
+    transitionSpec: {
+      duration: 350,
+      easing: Easing.out(Easing.poly(4)),
+      timing: Animated.timing,
+      useNativeDriver: true,
+    },
+    screenInterpolator: sceneProps => {
+      const { position, layout, scene, index, scenes } = sceneProps;
+      const toIndex = index;
+      const thisSceneIndex = scene.index;
+      const width = layout.initWidth;
+
+      const translateX = position.interpolate({
+        inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
+        outputRange: [width, 0, 0],
+      });
+
+      const slideFromRight = { transform: [{ translateX }] };
+
+      const lastSceneIndex = scenes[scenes.length - 1].index;
+
+      if (lastSceneIndex - toIndex > 1) {
+        if (scene.index === toIndex) return;
+        if (scene.index !== lastSceneIndex) return { opacity: 0 };
+      }
+
+      return slideFromRight;
+    },
+});
+
 const Home = StackNavigator({
   main: { screen: HomeScreen, params: { type: 'note' } },
   edict: { screen: Edict },
 },
 {
-  headerMode: 'float',
+  transitionConfig,
 });
 
 const Archive = StackNavigator({
@@ -28,7 +60,7 @@ const Archive = StackNavigator({
   edict: { screen: Edict },
 },
 {
-  headerMode: 'float',
+  transitionConfig,
 });
 
 const Trash = StackNavigator({
@@ -36,7 +68,7 @@ const Trash = StackNavigator({
   edict: { screen: Edict },
 },
 {
-  headerMode: 'float',
+  transitionConfig,
 });
 
 const MainNavigator = DrawerNavigator({
